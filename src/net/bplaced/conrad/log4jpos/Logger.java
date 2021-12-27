@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Handler;
 
+import static net.bplaced.conrad.log4jpos.Appender.*;
+
 /**
  * Replacement class for log4j logger, based on java.util.logging. Restrictions:
  * <ul>
@@ -53,6 +55,7 @@ public class Logger {
             Me.removeHandler(handler);
             handler.close();
         }
+        releaseFileHandler(MyAppender.MyHandler);
         MyAppender = null;
     }
 
@@ -60,12 +63,12 @@ public class Logger {
      * Adds appender to the logger. Only one Appender is allowed for a Logger.
      * @param appender  Appender to be used by the logger.
      */
-    synchronized public void addAppender(net.bplaced.conrad.log4jpos.Appender appender) {
+    synchronized public void addAppender(Appender appender) {
         appender.MyHandler.setLevel(MyLevel.LoggingLevel);
         appender.MyHandler.setFormatter(appender.MyLayout.MyFormatter);
-        Me.addHandler(appender.MyHandler);
         Me.setLevel(MyLevel.LoggingLevel);
         appender.MyLayout.setLogger(this);
+        Me.addHandler(appender.MyHandler);
         MyAppender = appender;
     }
 
@@ -82,7 +85,7 @@ public class Logger {
      * Sets logging level of the logger.
      * @param level One of the predefined Level constants.
      */
-    synchronized public void setLevel(net.bplaced.conrad.log4jpos.Level level) {
+    synchronized public void setLevel(Level level) {
         MyLevel = level;
         Me.setLevel(level.LoggingLevel);
         if (MyAppender != null)
@@ -96,12 +99,15 @@ public class Logger {
      * @throws NullPointerException If no Appender has been added to the logger previously.
      */
     synchronized public void log(Level level, String message) {
-        Me.log(level.LoggingLevel, message);
+        synchronized (MyAppender.MyHandler) {
+            Me.log(level.LoggingLevel, message);
+        }
         while (RenewAppender) {
             RenewAppender = false;
             try {
                 Me.removeHandler(MyAppender.MyHandler);
                 MyAppender.MyHandler.close();
+                releaseFileHandler(MyAppender.MyHandler);
                 Appender newone = new DailyRollingFileAppender(MyAppender.MyLayout, MyAppender.MyPath, MyAppender.MyDateFormat.toPattern());
                 MyAppender = null;
                 addAppender(newone);
@@ -110,7 +116,9 @@ public class Logger {
                 e.printStackTrace();
                 MyAppender.MyDateFormat = null;
             }
-            Me.log(level.LoggingLevel, message);
+            synchronized (MyAppender.MyHandler) {
+                Me.log(level.LoggingLevel, message);
+            }
         }
     }
 

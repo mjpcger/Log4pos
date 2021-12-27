@@ -41,7 +41,7 @@ public class DailyRollingFileAppender extends Appender {
         super(pattern);
         MyPath = path;
         MyCurrentPostfix = MyDateFormat.format(new Date());
-        MyHandler = new FileHandler(path + MyCurrentPostfix, true);
+        MyHandler = getFileHandler(path + MyCurrentPostfix);
         MyLayout = layout;
     }
 }

@@ -32,7 +32,7 @@ public class FileAppender extends Appender {
      */
     public FileAppender(Layout layout, String path) throws IOException {
         super(null);
-        MyHandler = new FileHandler(path, true);
+        MyHandler = getFileHandler(path);
         MyLayout = layout;
         MyPath = path;
     }
