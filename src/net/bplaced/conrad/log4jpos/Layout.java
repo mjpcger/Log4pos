@@ -48,6 +48,10 @@ public class Layout {
             }
             return "";
         }
+        // To generate header and trailer output, e.g. in case of a html formatter, overwrite the
+        // following methods as well:
+        // public String getHead(Handler h)
+        // public String getTail(Handler h)
     }
 
     /**
