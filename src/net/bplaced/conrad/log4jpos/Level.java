@@ -72,6 +72,11 @@ public class Level {
      */
     java.util.logging.Level LoggingLevel;
 
+    @Override
+    public String toString() {
+        return LoggingLevel.toString();
+    }
+
     private Level(java.util.logging.Level value) {
         LoggingLevel = value;
     }

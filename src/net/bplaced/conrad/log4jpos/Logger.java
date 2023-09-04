@@ -99,25 +99,27 @@ public class Logger {
      * @throws NullPointerException If no Appender has been added to the logger previously.
      */
     synchronized public void log(Level level, String message) {
-        synchronized (MyAppender.MyHandler) {
-            Me.log(level.LoggingLevel, message);
-        }
-        while (RenewAppender) {
-            RenewAppender = false;
-            try {
-                Me.removeHandler(MyAppender.MyHandler);
-                MyAppender.MyHandler.close();
-                releaseFileHandler(MyAppender.MyHandler);
-                Appender newone = new DailyRollingFileAppender(MyAppender.MyLayout, MyAppender.MyPath, MyAppender.MyDateFormat.toPattern());
-                MyAppender = null;
-                addAppender(newone);
-            } catch (IOException e) {
-                // IO error: let it "as is", clear pattern to enter not-rolling FileAppender
-                e.printStackTrace();
-                MyAppender.MyDateFormat = null;
-            }
+        if (!level.equals(Level.OFF)) {
             synchronized (MyAppender.MyHandler) {
                 Me.log(level.LoggingLevel, message);
+            }
+            while (RenewAppender) {
+                RenewAppender = false;
+                try {
+                    Me.removeHandler(MyAppender.MyHandler);
+                    MyAppender.MyHandler.close();
+                    releaseFileHandler(MyAppender.MyHandler);
+                    Appender newone = new DailyRollingFileAppender(MyAppender.MyLayout, MyAppender.MyPath, MyAppender.MyDateFormat.toPattern());
+                    MyAppender = null;
+                    addAppender(newone);
+                } catch (IOException e) {
+                    // IO error: let it "as is", clear pattern to enter not-rolling FileAppender
+                    e.printStackTrace();
+                    MyAppender.MyDateFormat = null;
+                }
+                synchronized (MyAppender.MyHandler) {
+                    Me.log(level.LoggingLevel, message);
+                }
             }
         }
     }

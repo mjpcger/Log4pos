@@ -33,7 +33,7 @@ public class PatternLayout extends Layout {
      *     <li>Only one date format specifier allowed,</li>
      *     <li>Format specifier (sequence following the conversion character, enclosed with {}) only allowed for date conversion.</li>
      * </ul>
-     * In addition to the log4j conversions, %[<i>midifyer</i>]Y can be used to log the logger name-
+     * In addition to the log4j conversions, %[<i>modifier</i>]Y can be used to log the logger name-
      *
      * @param pattern   Pattern string, for example "%d{HH:mm:ss,SSS} %-5p [%t]: %Y: %m%n".
      */
@@ -63,7 +63,7 @@ public class PatternLayout extends Layout {
                     // extract the modifier [[-]n]
                     String modifier = "";
 
-                    for (int j = minus ? 1 : 0; j < remainder.length() - 1 && j < (minus ? 4 : 3); j++) {
+                    for (int j = minus ? 1 : 0; j < remainder.length() && j < (minus ? 4 : 3); j++) {
                         if ("0123456789".indexOf(remainder.charAt(j)) < 0) {
                             modifier = remainder.substring(0, j);
                             remainder = remainder.substring(j);
@@ -93,7 +93,7 @@ public class PatternLayout extends Layout {
                             int index = "ptmYn".indexOf(remainder.charAt(0)) + 1;
                             if (index < 1)
                                 throw new IllegalArgumentException("Illegal data type in pattern: " + pattern);
-                            result += "023456".substring(index, index + 1) + "$s";
+                            result += "023456".substring(index, index + 1) + "$" + modifier + "s";
                             remainder = remainder.substring(1);
                         }
                     }
